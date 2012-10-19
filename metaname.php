@@ -1,4 +1,8 @@
 <?php
+error_reporting( -1 );
+ini_set( 'display_errors', TRUE );
+ini_set( 'display_startup_errors', TRUE );
+
 require_once 'JsonRpcClient.php';
 
 function WS_jsonRequest( $method, $ref, $key ) {
