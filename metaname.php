@@ -1,19 +1,33 @@
 <?php
 require_once 'JsonRpcClient.php';
-$api = new JsonRpcClient( 'https://www.metaname.co.nz/api' );
+
+function WS_jsonRequest( $method, $ref, $key ) {
+	$args = func_get_args();
+	unset( $args[0], $args[1], $args[2] );
+	$api = new JsonRpcClient( 'https://www.metaname.co.nz/api' );
+	try {
+		return json_decode( call_user_func_array( array( $api, $method ), array_merge( array( $ref, $key ), $args ) ) );
+	} catch( Exception $e ) {
+		return array( 'error' => $e->getMessage() );
+	}
+}
+
+function WS_isTld( $str, $tld ) {
+	return ( substr( $str, - strlen( $tld ) ) === $tld );
+}
 
 function metaname_getConfigArray() {
 	return array(
-		'AccountRef' => array(
-			'Type' => 'text',
-			'Size' => '4',
+		'AccountRef'      => array(
 			'Description' => 'Enter your Metaname Account Reference here',
+			'Size'        => '4',
+			'Type'        => 'text',
 		),
-		'APIKey' => array(
-			'Type' => 'text',
-			'Size' => '40',
+		'APIKey'          => array(
 			'Description' => 'Enter your Metaname API Key here',
-		),
+			'Size'        => '40',
+			'Type'        => 'text',
+		)
 	);
 }
 
@@ -29,7 +43,11 @@ function metaname_RenewDomain( $p ) {
 	$tld = $p['tld'];
 	$sld = $p['sld'];
 	$regperiod = $p['regperiod'];
-	return $api->renew_domain_name( $p['AccountRef'], $p['APIKey'], ( $sld.$tld ), ( ( substr( $tld, -2 ) === 'nz' ) ? $regperiod : ( $regperiod * 12 ) ) );
+	if ( $regperiod < 2 ) {
+		if ( WS_isTld( $tld, 'uk'   ) ) { return( 'error',   '.uk domains must be registered for at least 2 years' ); }
+		if ( WS_isTld( $tld, 'mobi' ) ) { return( 'error', '.mobi domains must be registered for at least 2 years' ); }
+	}
+	$result = WS_jsonRequest( $p['AccountRef'], $p['APIKey'], 'renew_domain_name', ( $sld.$tld ), ( $regperiod * 12 ) );
 }
 
 function metaname_GetNameservers( $p ) {
