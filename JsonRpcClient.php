@@ -1,4 +1,4 @@
-<?php // from https://bitbucket.org/jbg/php-json-rpc/src
+<?php // modified from https://bitbucket.org/jbg/php-json-rpc/src
 class JsonRpcFault extends Exception {}
 
 class JsonRpcClient {
@@ -32,20 +32,20 @@ class JsonRpcClient {
 			)
 		) );
 		if ( ( $jsonResponse = file_get_contents( $this->uri, false, $ctx ) ) === false ) {
-			throw new JsonRpcFault( 'file_get_contents failed', -32603 );
+			throw new JsonRpcFault( 'API response failed' , -32603 );
 		}
 		if ( ( $response = json_decode( $jsonResponse ) ) === null ) {
-			throw new JsonRpcFault( 'JSON cannot be decoded', -32603 );
+			throw new JsonRpcFault( 'API response cannot be decoded'   , -32603 );
 		}
 		if ( $response->id != $request['id'] ) {
-			throw new JsonRpcFault( 'Mismatched JSON-RPC IDs', -32603 );
+			throw new JsonRpcFault( 'Mismatched API response ID'  , -32603 );
 		}
 		if ( property_exists( $response, 'error' ) ) {
-			throw new JsonRpcFault( $response->error->message, $response->error->code );
-		} else if ( property_exists( $response, 'result' ) ) {
-			return $response->result;
-		} else {
-			throw new JsonRpcFault( 'Invalid JSON-RPC response', -32603 );
+			throw new JsonRpcFault( $response->error->message  , $response->error->code );
 		}
+		if ( property_exists( $response, 'result' ) ) {
+			return $response->result;
+		}
+		throw new JsonRpcFault( 'Invalid API response', -32603 );
 	}
 }

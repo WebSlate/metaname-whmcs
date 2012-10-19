@@ -7,8 +7,9 @@ function WS_jsonRequest( $method, $ref, $key ) {
 	$api = new JsonRpcClient( 'https://www.metaname.co.nz/api' );
 	try {
 		return json_decode( call_user_func_array( array( $api, $method ), array_merge( array( $ref, $key ), $args ) ) );
+
 	} catch( Exception $e ) {
-		return array( 'error' => $e->getMessage() );
+		return $e->getMessage();
 	}
 }
 
@@ -32,36 +33,34 @@ function metaname_getConfigArray() {
 }
 
 function metaname_RegisterDomain( $p ) {
-	return array( 'error', 'Not Implemented' );
+	return array( 'error', 'Not implemented' );
 }
 
 function metaname_TransferDomain( $p ) {
-	return array( 'error', 'Not Implemented' );
+	return array( 'error', 'Not implemented' );
 }
 
 function metaname_RenewDomain( $p ) {
-	$tld = $p['tld'];
-	$sld = $p['sld'];
-	$regperiod = $p['regperiod'];
-	if ( $regperiod < 2 ) {
-		if ( WS_isTld( $tld, 'uk'   ) ) { return( 'error',   '.uk domains must be registered for at least 2 years' ); }
-		if ( WS_isTld( $tld, 'mobi' ) ) { return( 'error', '.mobi domains must be registered for at least 2 years' ); }
+	if ( $p['regperiod'] < 2 ) {
+		if ( WS_isTld( $p['tld'], 'uk'   ) ) { return( 'error',   '.uk domains must be registered for at least 2 years' ); }
+		if ( WS_isTld( $p['tld'], 'mobi' ) ) { return( 'error', '.mobi domains must be registered for at least 2 years' ); }
 	}
-	$result = WS_jsonRequest( $p['AccountRef'], $p['APIKey'], 'renew_domain_name', ( $sld.$tld ), ( $regperiod * 12 ) );
+	$result = WS_jsonRequest( $p['AccountRef'], $p['APIKey'], 'renew_domain_name', ( $p['sld'].$p['tld'] ), ( $p['regperiod'] * 12 ) );
+	if ( !is_array( $result ) ) { return array( 'error', $result ); }
 }
 
 function metaname_GetNameservers( $p ) {
-	return array( 'error', 'Not Implemented' );
+	return array( 'error', 'Not implemented' );
 }
 
 function metaname_SaveNameservers( $p ) {
-	return array( 'error', 'Not Implemented' );
+	return array( 'error', 'Not implemented' );
 }
 
 function metaname_GetContactDetails( $p ) {
-	return array( 'error', 'Not Implemented' );
+	return array( 'error', 'Not implemented' );
 }
 
 function metaname_SaveContactDetails( $p ) {
-	return array( 'error', 'Not Implemented' );
+	return array( 'error', 'Not implemented' );
 }
