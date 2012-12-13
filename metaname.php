@@ -225,7 +225,7 @@ function metaname_TransferDomain( $p ) {
 		$out['name_servers'][$i]['name'] = $p['ns'.$i+1];
 	}
 	if ( $p['TestMode'] === 'no' ) {
-		$result = WS_jsonRequest( $p['AccountRef'], $p['APIKey'], 'register', json_encode( $out ) );
+		$result = WS_jsonRequest( $p['AccountRef'], $p['APIKey'], 'transfer_in', json_encode( $out ) );
 		if ( !is_array( $result ) ) { return array( 'error', $result ); }
 	}
 }
@@ -247,7 +247,7 @@ function metaname_SaveNameservers( $p ) {
 		$out['name_servers'][$i]['name'] = $p['ns'.$i+1];
 	}
 	if ( $p['TestMode'] === 'no' ) {
-		$result = WS_jsonRequest( $p['AccountRef'], $p['APIKey'], 'register', json_encode( $out ) );
+		$result = WS_jsonRequest( $p['AccountRef'], $p['APIKey'], 'update_domain', json_encode( $out ) );
 		if ( !is_array( $result ) ) { return array( 'error', $result ); }
 	}
 }
@@ -260,20 +260,20 @@ function metaname_SaveContactDetails( $p ) {
 	return array( 'error', 'Not implemented' );
 }
 
-function template_GetEPPCode($params) {
-	$result = WS_jsonRequest( $p['AccountRef'], $p['APIKey'], 'renew', ( $p['sld'].$p['tld'] ) );
+function template_GetEPPCode( $p ) {
+	$result = WS_jsonRequest( $p['AccountRef'], $p['APIKey'], 'new_auth_code', ( $p['sld'].$p['tld'] ) );
 	if ( !is_array( $result ) ) { return array( 'error', $result ); }
 	return $result;
 }
 
-function template_RegisterNameserver($params) {
+function template_RegisterNameserver( $p ) {
 	return array( 'error', 'Not implemented' );
 }
 
-function template_ModifyNameserver($params) {
+function template_ModifyNameserver( $p ) {
 	return array( 'error', 'Not implemented' );
 }
 
-function template_DeleteNameserver($params) {
+function template_DeleteNameserver( $p ) {
 	return array( 'error', 'Not implemented' );
 }
