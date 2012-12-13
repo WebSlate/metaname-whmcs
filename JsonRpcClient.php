@@ -9,7 +9,7 @@ class JsonRpcClient {
 	}
 
 	private function generateId() {
-		$chars = array_merge( range( 'A', 'Z' ), range( 'a', 'z' ), range( 0, 9 ) );
+		$chars = array_merge( range( 'a', 'z' ), range( 0, 9 ) );
 		$id = '';
 		for ( $c = 0; $c < 16; ++$c ) {
 			$id .= $chars[mt_rand( 0, count( $chars ) - 1 )];
@@ -32,20 +32,20 @@ class JsonRpcClient {
 			)
 		) );
 		if ( ( $jsonResponse = file_get_contents( $this->uri, false, $ctx ) ) === false ) {
-			throw new JsonRpcFault( 'API response failed' , -32603 );
+			throw new JsonRpcFault( 'API response failed'              , -32603 );
 		}
 		if ( ( $response = json_decode( $jsonResponse ) ) === null ) {
 			throw new JsonRpcFault( 'API response cannot be decoded'   , -32603 );
 		}
 		if ( $response->id != $request['id'] ) {
-			throw new JsonRpcFault( 'Mismatched API response ID'  , -32603 );
+			throw new JsonRpcFault( 'Mismatched API response ID'       , -32603 );
 		}
 		if ( property_exists( $response, 'error' ) ) {
-			throw new JsonRpcFault( $response->error->message  , $response->error->code );
+			throw new JsonRpcFault( $response->error->message          , $response->error->code );
 		}
 		if ( property_exists( $response, 'result' ) ) {
 			return $response->result;
 		}
-		throw new JsonRpcFault( 'Invalid API response', -32603 );
+		throw new JsonRpcFault( 'Invalid API response'                 , -32603 );
 	}
 }

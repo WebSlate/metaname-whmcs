@@ -1,11 +1,10 @@
 # Metaname for WHMCS
 **metaname-whmcs** is an open source PHP module containing [Metaname](https://metaname.net)-specific functionality for WHMCS, including:
 
-  * **import\_nz\_domain\_name** & **import\_other\_domain\_name** - import a .nz or non-.nz domain name.
-  * **register\_domain\_name** - register a domain name.
-  * **renew\_domain\_name** - renew a domain name.
-  * **update\_contacts** - update the contacts for a domain name.
-  * **update\_name\_servers** - update the name servers for a domain name.
+  * **register** - register a domain name.
+  * **renew** - renew a domain name.
+  * **transfer** - import a .nz or non-.nz domain name.
+  * **update** - update the contacts and name servers for a domain name.
 
 ## To Do
 * Everything
