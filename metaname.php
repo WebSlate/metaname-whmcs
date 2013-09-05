@@ -1,8 +1,4 @@
 <?php
-error_reporting( -1 );
-ini_set( 'display_errors', TRUE );
-ini_set( 'display_startup_errors', TRUE );
-
 require_once 'JsonRpcClient.php';
 
 function WS_jsonRequest( $method, $ref, $key ) {
@@ -46,11 +42,13 @@ function metaname_TransferDomain( $p ) {
 
 function metaname_RenewDomain( $p ) {
 	if ( $p['regperiod'] < 2 ) {
-		if ( WS_isTld( $p['tld'], 'uk'   ) ) { return( 'error',   '.uk domains must be registered for at least 2 years' ); }
-		if ( WS_isTld( $p['tld'], 'mobi' ) ) { return( 'error', '.mobi domains must be registered for at least 2 years' ); }
+		if ( WS_isTld( $p['tld'], 'uk'   ) ) { return array( 'error',   '.uk domains must be registered for at least 2 years' ); }
+		if ( WS_isTld( $p['tld'], 'mobi' ) ) { return array( 'error', '.mobi domains must be registered for at least 2 years' ); }
 	}
 	$result = WS_jsonRequest( $p['AccountRef'], $p['APIKey'], 'renew_domain_name', ( $p['sld'].$p['tld'] ), ( $p['regperiod'] * 12 ) );
-	if ( !is_array( $result ) ) { return array( 'error', $result ); }
+	if ( !is_array( $result ) ) {
+		return array( 'error', $result );
+	}
 }
 
 function metaname_GetNameservers( $p ) {
