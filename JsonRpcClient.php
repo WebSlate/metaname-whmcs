@@ -27,7 +27,7 @@ class JsonRpcClient {
 		$ctx = stream_context_create( array(
 			'http' => array(
 				'method'  => 'POST',
-				'header'  => 'Content-Type: application/json\r\n',
+				'header'  => 'User-Agent: PHP JsonRpcClient 2.0\r\nAccept: application/json\r\nContent-Type: application/json\r\n',
 				'content' => json_encode( $request )
 			)
 		) );
