@@ -253,32 +253,33 @@ function metaname_RegisterDomain( $p ) {
                             ),
     'phone_number' =>       array(
                               'country_code' => $p['phonecc'],
-                              'area_code' =>    NULL,
+                              # FIXME: At least try to parse the area code from the phone number
+                              'area_code' =>    '9',
                               'local_number' => $p['phonenumber'],
                             ),
     'fax_number' =>         NULL,
   );
   show('  registrant_contact: ', $registrant_contact);
   $contacts = array(
-    'registrant_contact' => $registrant_contact,
-    'admin_contact' =>      $registrant_contact,
-    'technical_contact' =>  $registrant_contact,
+    'registrant' => $registrant_contact,
+    'admin' =>      $registrant_contact,
+    'technical' =>  $registrant_contact,
   );
   show('  contacts: ', $contacts);
   $name_servers = array();
   for( $n = 1;  $n <= 5;  $n++ ) {
     $ns = $p['ns'.$n];
     if ( $ns != '' ) {
-      array_push( $name_servers, array('name' => $ns) );
+      array_push( $name_servers, array('name' => $ns, 'ip4_address' => NULL, 'ip6_address' => NULL) );
     }
   }
   show('  name_servers: ', $name_servers);
-  $udai = register_domain_name( $domain_name, $term, $contacts, $name_servers );
-	return array( 'error' => 'Not implemented' );
+  $udai = WS_jsonRequest( 'register_domain_name', $p, $domain_name, $term, $contacts, $name_servers );
+	return array( 'info' => "The UDAI is $udai" );
 }
 
 function metaname_TransferDomain( $p ) {
-	return array( 'error', 'Not implemented' );
+	return array( 'error' => 'Not implemented' );
 }
 
 function metaname_RenewDomain( $p ) {
