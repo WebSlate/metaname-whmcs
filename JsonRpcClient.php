@@ -32,16 +32,16 @@ class JsonRpcClient {
 			)
 		) );
 		if ( ( $jsonResponse = file_get_contents( $this->uri, false, $ctx ) ) === false ) {
-			throw new JsonRpcFault( 'API response failed' , -32603 );
+			throw new JsonRpcFault( 'API response failed', -32603 );
 		}
 		if ( ( $response = json_decode( $jsonResponse ) ) === null ) {
-			throw new JsonRpcFault( 'API response cannot be decoded'   , -32603 );
+			throw new JsonRpcFault( 'API response cannot be decoded', -32603 );
 		}
 		if ( $response->id != $request['id'] ) {
-			throw new JsonRpcFault( 'Mismatched API response ID'  , -32603 );
+			throw new JsonRpcFault( 'Mismatched API response ID', -32603 );
 		}
 		if ( property_exists( $response, 'error' ) ) {
-			throw new JsonRpcFault( $response->error->message  , $response->error->code );
+			throw new JsonRpcFault( $response->error->message, $response->error->code );
 		}
 		if ( property_exists( $response, 'result' ) ) {
 			return $response->result;
