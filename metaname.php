@@ -56,6 +56,16 @@ function WS_isTld( $str, $tld ) {
 	return ( substr( $str, - strlen( $tld ) ) === $tld );
 }
 
+function debug( $message ) {
+	$f = fopen( '/tmp/metaname-module.log', 'a' );
+	fwrite( $f, '  '.date('c').'  '.$message."\n" );
+	fclose( $f );
+}
+
+function show( $message, $value ) {
+  debug( $message.'  '.var_export($value,TRUE) );
+}
+
 function metaname_getConfigArray() {
 	return array(
 		'AccountRef'        => array(
@@ -79,7 +89,192 @@ function metaname_getConfigArray() {
 }
 
 function metaname_RegisterDomain( $p ) {
-	return array( 'error', 'Not implemented' );
+  debug('metaname_RegisterDomain '.var_export($p,TRUE));
+  /*
+   array (
+    'domainid' => '4',
+    'sld' => 'kiwiping-test',
+    'tld' => 'co.nz',
+    'regperiod' => '1',
+    'registrar' => 'metaname',
+    'ns1' => 'ns1.metaname.net',
+    'ns2' => 'ns2.metaname.net',
+    'ns3' => 'ns3.metaname.net',
+    'ns4' => '',
+    'ns5' => '',
+    'transfersecret' => '',
+    'userid' => '1',
+    'id' => '1',
+    'firstname' => 'REDACTED',
+    'lastname' => 'REDACTED',
+    'companyname' => '',
+    'email' => 'REDACTED',
+    'address1' => 'REDACTED',
+    'address2' => '',
+    'city' => 'Chch',
+    'state' => 'Canterbury',
+    'postcode' => 'REDACTED',
+    'countrycode' => 'NZ',
+    'country' => 'NZ',
+    'countryname' => 'New Zealand',
+    'phonecc' => '64',
+    'phonenumber' => 'REDACTED',
+    'notes' => '',
+    'password' => 'REDACTED',
+    'twofaenabled' => '',
+    'currency' => '1',
+    'defaultgateway' => '',
+    'cctype' => '',
+    'cclastfour' => '',
+    'securityqid' => '0',
+    'securityqans' => '',
+    'groupid' => '0',
+    'status' => 'Active',
+    'credit' => '0.00',
+    'taxexempt' => '',
+    'latefeeoveride' => '',
+    'overideduenotices' => '',
+    'separateinvoices' => '',
+    'disableautocc' => '',
+    'emailoptout' => '1',
+    'overrideautoclose' => '0',
+    'language' => '',
+    'lastlogin' => 'Date: 11/09/2013 14:21<br>IP Address: REDACTED<br>Host: REDACTED',
+    'billingcid' => '0',
+    'fullstate' => 'Canterbury',
+    'dnsmanagement' => '',
+    'emailforwarding' => '',
+    'idprotection' => '',
+    'adminfirstname' => 'REDACTED',
+    'adminlastname' => 'REDACTED',
+    'admincompanyname' => '',
+    'adminemail' => 'REDACTED',
+    'adminaddress1' => 'REDACTED',
+    'adminaddress2' => '',
+    'admincity' => 'Chch',
+    'adminfullstate' => 'Canterbury',
+    'adminstate' => 'Canterbury',
+    'adminpostcode' => 'REDACTED',
+    'admincountry' => 'NZ',
+    'adminphonenumber' => 'REDACTED',
+    'fullphonenumber' => 'REDACTED',
+    'adminfullphonenumber' => 'REDACTED',
+    'original' => 
+    array (
+      'domainid' => '4',
+      'sld' => 'kiwiping-test',
+      'tld' => 'co.nz',
+      'regperiod' => '1',
+      'registrar' => 'metaname',
+      'ns1' => 'ns1.metaname.net',
+      'ns2' => 'ns2.metaname.net',
+      'ns3' => 'ns3.metaname.net',
+      'ns4' => '',
+      'ns5' => '',
+      'transfersecret' => NULL,
+      'userid' => '1',
+      'id' => '1',
+      'firstname' => 'REDACTED',
+      'lastname' => 'REDACTED',
+      'companyname' => '',
+      'email' => 'REDACTED',
+      'address1' => 'REDACTED',
+      'address2' => '',
+      'city' => 'Chch',
+      'state' => 'Canterbury',
+      'postcode' => 'REDACTED',
+      'countrycode' => 'NZ',
+      'country' => 'NZ',
+      'countryname' => 'New Zealand',
+      'phonecc' => 64,
+      'phonenumber' => 'REDACTED',
+      'notes' => '',
+      'password' => 'REDACTED',
+      'twofaenabled' => false,
+      'currency' => '1',
+      'defaultgateway' => '',
+      'cctype' => '',
+      'cclastfour' => '',
+      'securityqid' => '0',
+      'securityqans' => '',
+      'groupid' => '0',
+      'status' => 'Active',
+      'credit' => '0.00',
+      'taxexempt' => '',
+      'latefeeoveride' => '',
+      'overideduenotices' => '',
+      'separateinvoices' => '',
+      'disableautocc' => '',
+      'emailoptout' => '1',
+      'overrideautoclose' => '0',
+      'language' => '',
+      'lastlogin' => 'Date: 11/09/2013 14:21<br>IP Address: REDACTED<br>Host: REDACTED',
+      'billingcid' => '0',
+      'fullstate' => 'Canterbury',
+      'dnsmanagement' => false,
+      'emailforwarding' => false,
+      'idprotection' => false,
+      'adminfirstname' => 'REDACTED',
+      'adminlastname' => 'REDACTED',
+      'admincompanyname' => '',
+      'adminemail' => 'REDACTED',
+      'adminaddress1' => 'REDACTED',
+      'adminaddress2' => '',
+      'admincity' => 'Chch',
+      'adminfullstate' => 'Canterbury',
+      'adminstate' => 'Canterbury',
+      'adminpostcode' => 'REDACTED',
+      'admincountry' => 'NZ',
+      'adminphonenumber' => 'REDACTED',
+      'fullphonenumber' => 'REDACTED',
+      'adminfullphonenumber' => 'REDACTED',
+    ),
+    'Endpoint' => 'https://test.metaname.net/api/1.1',
+    'AccountRef' => 'joe',
+    'APIKey' => 'yeah, right',
+  )
+  */
+  debug('metaname_RegisterDomain');
+  $domain_name = $p['sld'].'.'.$p['tld'];
+  show('  domain_name: ', $domain_name);
+  $term = 12 * $p['regperiod'];
+  show('  term: ', $term);
+  $registrant_contact = array(
+    'name' =>              $p['firstname'].' '.$p['lastname'],
+    'email_address' =>     $p['email'],
+    'organisation_name' => $p['companyname'],
+    'postal_address' =>     array(
+                              'line1' =>        $p['address1'],
+                              'line2' =>        $p['address2'],
+                              'city' =>         $p['city'],
+                              'region' =>       $p['state'],
+                              'postal_code' =>  $p['postcode'],
+                              'country_code' => $p['country'],
+                            ),
+    'phone_number' =>       array(
+                              'country_code' => $p['phonecc'],
+                              'area_code' =>    NULL,
+                              'local_number' => $p['phonenumber'],
+                            ),
+    'fax_number' =>         NULL,
+  );
+  show('  registrant_contact: ', $registrant_contact);
+  $contacts = array(
+    'registrant_contact' => $registrant_contact,
+    'admin_contact' =>      $registrant_contact,
+    'technical_contact' =>  $registrant_contact,
+  );
+  show('  contacts: ', $contacts);
+  $name_servers = array();
+  for( $n = 1;  $n <= 5;  $n++ ) {
+    $ns = $p['ns'.$n];
+    if ( $ns != '' ) {
+      array_push( $name_servers, array('name' => $ns) );
+    }
+  }
+  show('  name_servers: ', $name_servers);
+  $udai = register_domain_name( $domain_name, $term, $contacts, $name_servers );
+	return array( 'error' => 'Not implemented' );
 }
 
 function metaname_TransferDomain( $p ) {
