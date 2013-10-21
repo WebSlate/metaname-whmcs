@@ -173,10 +173,10 @@ function metaname_TransferDomain( $p ) {
 function metaname_RenewDomain( $p ) {
 	if ( $p['regperiod'] < 2 ) {
 		if ( WS_isTld( $p['tld'], 'uk' ) ) {
-			return array( 'error', '.uk domains must be registered for at least 2 years' );
+			return array( 'error' => '.uk domains must be registered for at least 2 years' );
 		}
 		if ( WS_isTld( $p['tld'], 'mobi' ) ) {
-			return array( 'error', '.mobi domains must be registered for at least 2 years'  =);
+			return array( 'error' => '.mobi domains must be registered for at least 2 years' );
 		}
 	}
 	$result = WS_jsonRequest( $p, 'renew_domain_name', ( $p['sld'] . $p['tld'] ), ( $p['regperiod'] * 12 ) );
