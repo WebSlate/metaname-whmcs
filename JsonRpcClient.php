@@ -13,26 +13,26 @@ class JsonRpcClient {
 		$id = '';
 		for ( $c = 0; $c < 16; ++$c ) {
 			$id .= $chars[mt_rand( 0, count( $chars ) - 1 )];
-		}	
+		}
 		return $id;
 	}
 
 	public function __call( $name, $arguments ) {
 		$request = array(
+			'id'      => $this->generateId(),
 			'jsonrpc' => '2.0',
 			'method'  => $name,
 			'params'  => $arguments,
-			'id'      => $this->generateId()
 		);
 		$ctx = stream_context_create( array(
 			'http' => array(
-				'method'  => 'POST',
+				'content' => json_encode( $request ),
 				'header'  => array(
-                      'User-Agent: PHP JsonRpcClient 2.0',
-                      'Accept: application/json',
-                      'Content-Type: application/json'
-                     ),
-				'content' => json_encode( $request )
+					'User-Agent: PHP JsonRpcClient 2.0',
+					'Accept: application/json',
+					'Content-Type: application/json'
+				),
+				'method'  => 'POST',
 			)
 		) );
 		if ( ( $jsonResponse = file_get_contents( $this->uri, false, $ctx ) ) === false ) {
