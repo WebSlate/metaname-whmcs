@@ -58,7 +58,7 @@ function WS_isTld( $str, $tld ) {
 
 function debug( $message ) {
 	$f = fopen( '/tmp/metaname-module.log', 'a' );
-	fwrite( $f, '  ' . date( 'c' ) . '  ' . $message . '\n' );
+	fwrite( $f, '  ' . date( 'c' ) . '  ' . $message . "\n" );
 	fclose( $f );
 }
 
