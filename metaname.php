@@ -264,4 +264,29 @@ function metaname_SaveContactDetails( $p ) {
 	WS_jsonRequest( 'update_contacts', $p, $metaname->domain_name_in( $p ), $contacts );
 }
 
+function metaname_GetRegistrarLock( $p ) {
+	debug( 'metaname_GetRegistrarLock ' . var_export( $p, TRUE ) );
+	return array( 'error' => 'Not implemented' );
+}
+
+function metaname_SaveRegistrarLock( $p ) {
+	debug( 'metaname_SaveRegistrarLock ' . var_export( $p, TRUE ) );
+	return array( 'error' => 'Not implemented' );
+}
+
+function metaname_GetDNS( $p ) {
+	debug( 'metaname_GetDNS ' . var_export( $p, TRUE ) );
+	return array( 'error' => 'Not implemented' );
+}
+
+function metaname_SaveDNS( $p ) {
+	debug( 'metaname_SaveDNS ' . var_export( $p, TRUE ) );
+	return array( 'error' => 'Not implemented' );
+}
+
+function metaname_GetEPPCode( $p ) {
+	debug( 'metaname_GetEPPCode ' . var_export( $p, TRUE ) );
+	return array( 'error' => 'Not implemented' );
+}
+
 #https://github.com/WebSlate/metaname-whmcs/blob/7e182bccbd57cd1cbae542badbbc0b081a29e5bb/metaname.php
