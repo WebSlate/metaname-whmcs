@@ -1,8 +1,16 @@
 <?php
 require_once 'JsonRpcClient.php';
 
+# On the assumption that WHMCS doesn't "catch", any exceptions raised in this
+# module should be caught, logged and an "error" array returned:
+#
+#   return array( 'error' => $error_message );
+#
+# ..bearing in mind that $error_message will be presented to the end user.
+#
+
 function WS_jsonRequest( $method, $p ) {
-	$log  = 'metaname.log.html';
+	$log  = '/tmp/metaname.log.html';
 	$date = date( 'd/m/y H:i:s' );
 	try {
 		$api = new JsonRpcClient( 'https://' . ( ( $p['TestSite'] === 'no' ) ? '' : 'test.' ) . 'metaname.net/api/1.1' );
@@ -17,6 +25,9 @@ function WS_jsonRequest( $method, $p ) {
 <pre>{$message}</pre>
 HTML;
 	} catch ( Exception $exception ) {
+		# JsonRpcFault should be handled on a case-by-case basis
+		if( 'JsonRpcFault' == get_class($exception) )
+			throw $exception;
 		$result  = FALSE;
 		$code    = $exception->getCode();
 		$file    = $exception->getFile();
@@ -56,16 +67,6 @@ function WS_isTld( $str, $tld ) {
 	return ( substr( $str, -strlen( $tld ) ) === $tld );
 }
 
-function debug( $message ) {
-	$f = fopen( '/tmp/metaname-module.log', 'a' );
-	fwrite( $f, '  ' . date( 'c' ) . '  ' . $message . "\n" );
-	fclose( $f );
-}
-
-function show( $message, $value ) {
-	debug( $message . '  ' . var_export( $value, TRUE ) );
-}
-
 function name_servers_specified_by( $params ) {
 	$name_servers = array();
 	for ( $n = 1; $n <= 5; $n++ ) {
@@ -96,10 +97,28 @@ function copy_contact_details( $contact, &$values, $contact_type ) {
 	$values[$contact_type]['Last Name']  = $name_parts[1];
 }
 
+# This object avoids polluting the root namespace:
 class MetanameHelper {
+
 	public function domain_name_in( $params )
 	{
 		return $params['sld'] . '.' . $params['tld'];
+	}
+
+	function inspect( $label, $value ) {
+		$this->log( $label . ': ' . var_export( $value, TRUE ) );
+	}
+
+	public function log( $stuff )
+	{
+		$f = fopen( '/tmp/metaname-module.log', 'a' );
+		if ( is_subclass_of( $stuff, 'Exception' ) ) {
+			$e = $stuff;
+			$code = $e->getCode(); $message = $e->getMessage(); $trace = $e->getTraceAsString();
+			$stuff = "ERROR $code ( $message) at:\n$trace";
+		}
+		fwrite( $f, '  ' . date( 'c' ) . '  ' . $stuff . "\n" );
+		fclose( $f );
 	}
 }
 $metaname = new MetanameHelper();
@@ -127,12 +146,12 @@ function metaname_getConfigArray() {
 }
 
 function metaname_RegisterDomain( $p ) {
-	debug( 'metaname_RegisterDomain ' . var_export( $p, TRUE ) );
-	debug( 'metaname_RegisterDomain' );
+	global $metaname;
+	$metaname->inspect( 'metaname_RegisterDomain', $p );
 	$domain_name = $p['sld'] . '.' . $p['tld'];
-	show( '  domain_name: ', $domain_name );
+	$metaname->inspect( 'domain_name', $domain_name );
 	$term = 12 * $p['regperiod'];
-	show( '  term: ', $term );
+	$metaname->inspect( 'term', $term );
 	$registrant_contact = array(
 		'name'              => $p['firstname'] . ' ' . $p['lastname'],
 		'email_address'     => $p['email'],
@@ -152,25 +171,28 @@ function metaname_RegisterDomain( $p ) {
 		),
 		'fax_number'        => NULL
 	);
-	show( '  registrant_contact: ', $registrant_contact );
+	$metaname->inspect( 'registrant_contact', $registrant_contact );
 	$contacts = array(
 		'registrant' => $registrant_contact,
 		'admin'      => $registrant_contact,
 		'technical'  => $registrant_contact
 	);
-	show( '  contacts: ', $contacts );
+	$metaname->inspect( 'contacts', $contacts );
 	$name_servers = name_servers_specified_by( $p );
-	show( '  name_servers: ', $name_servers );
+	$metaname->inspect( 'name_servers', $name_servers );
 	$udai = WS_jsonRequest( 'register_domain_name', $p, $domain_name, $term, $contacts, $name_servers );
 	return array( 'info' => 'The UDAI is ' . $udai );
 }
 
 function metaname_TransferDomain( $p ) {
-	debug( 'metaname_TransferDomain ' . var_export( $p, TRUE ) );
+	global $metaname;
+	$metaname->inspect( 'metaname_TransferDomain', $p );
 	return array( 'error' => 'Not implemented' );
 }
 
 function metaname_RenewDomain( $p ) {
+	global $metaname;
+	$metaname->inspect( 'metaname_RenewDomain', $p );
 	if ( $p['regperiod'] < 2 ) {
 		if ( WS_isTld( $p['tld'], 'uk' ) ) {
 			return array( 'error' => '.uk domains must be registered for at least 2 years' );
@@ -190,10 +212,11 @@ function d( $message, $value ) {
 }
 
 function _named( $name, $domains ) {
-	#d( '_named', $name );
+	global $metaname;
+	#$metaname->inspect( '_named', $name );
 	foreach ( $domains as $domain ) {
-		#show( 'd', $domain );
-		#d( 'n', $domain->name );
+		#$metaname->inspect( 'd', $domain );
+		#$metaname->inspect( 'n', $domain->name );
 		if ( $domain->name == $name ) {
 			return $domain;
 		}
@@ -202,10 +225,10 @@ function _named( $name, $domains ) {
 }
 
 function metaname_GetNameservers( $p ) {
-	#debug( 'metaname_GetNameservers ' . var_export( $p, TRUE ) );
+	global $metaname;
+	#$metaname->inspect( 'metaname_GetNameservers', $p );
 	$domains     = WS_jsonRequest( 'domain_names', $p );
-	#d( 'p', $p );
-	#show( 'dms', $domains );
+	#$metaname->inspect( 'dms', $domains );
 	$domain_name = $p['sld'] . '.' . $p['tld'];
 	#var_export( $domain_name );
 	$domain      = _named( $domain_name, $domains );
@@ -222,7 +245,8 @@ function metaname_GetNameservers( $p ) {
 }
 
 function metaname_SaveNameservers( $p ) {
-	#debug( 'metaname_SaveNameservers ' . var_export( $p, TRUE ) );
+	global $metaname;
+	#$metaname->inspect( 'metaname_SaveNameservers', $p );
 	$domain_name  = $p['sld'] . '.' . $p['tld'];
 	$name_servers = name_servers_specified_by( $p );
 	WS_jsonRequest( 'update_name_servers', $p, $domain_name, $name_servers );
@@ -230,18 +254,19 @@ function metaname_SaveNameservers( $p ) {
 }
 
 function metaname_GetContactDetails( $p ) {
-	debug( 'metaname_GetContactDetails ' . var_export( $p, TRUE ) );
+	global $metaname;
+	$metaname->inspect( 'metaname_GetContactDetails', $p );
 	$domain_name = $p['sld'] . '.' . $p['tld'];
 	# Put your code to get WHOIS data here
 	$domains     = WS_jsonRequest( 'domain_names', $p );
 	$domain      = _named( $domain_name, $domains );
-	show( 'domain', $domain );
+	$metaname->inspect( 'domain', $domain );
 	if ( $domain != NULL ) {
 		$values = array();
 		copy_contact_details( $domain->contacts->registrant, $values, 'Registrant' );
 		copy_contact_details( $domain->contacts->admin, $values, 'Admin' );
 		copy_contact_details( $domain->contacts->technical, $values, 'Tech' );
-		show( 'vl', $values );
+		$metaname->inspect( 'vl', $values );
 		return $values;
 	} else {
 		return array( 'error' => 'This domain does not appear to be in your portfolio' );
@@ -254,8 +279,8 @@ function encode_contact( $params, $contact_type ) {
 
 function metaname_SaveContactDetails( $p ) {
 	global $metaname;
-	debug( 'metaname_SaveContactDetails ' . var_export( $p, TRUE ) );
-	show( 'ms', $metaname );
+	$metaname->inspect( 'metaname_SaveContactDetails', $p );
+	$metaname->inspect( 'ms', $metaname );
 	$contacts = array(
 		'registrant' => encode_contact( $p, 'Registrant' ),
 		'admin'      => encode_contact( $p, 'Admin' ),
@@ -265,27 +290,58 @@ function metaname_SaveContactDetails( $p ) {
 }
 
 function metaname_GetRegistrarLock( $p ) {
-	debug( 'metaname_GetRegistrarLock ' . var_export( $p, TRUE ) );
-	return array( 'error' => 'Not implemented' );
+	global $metaname;
+	$metaname->inspect( 'metaname_GetRegistrarLock', $p );
+	try {
+		return WS_jsonRequest( 'domain_name_is_locked', $p, $metaname->domain_name_in( $p ) ) ? 'locked' : 'unlocked';
+	}
+	catch ( JsonRpcFault $e ) {
+		switch ( $e->getCode() ) {
+			case -19: $error_message = $e->getMessage(); break;
+			# Errors -4, -5 and -18 are also documented for domain_name_is_locked
+			# although any of these would be a WHMCS system error since this method
+			# should be invoked only for domain names in the reseller's portfolio
+			default: $metaname->log( $e ); $error_message = 'System error.  Please contact the Support team.';
+		}
+	}
+	return array( 'error' => $error_message );
 }
 
 function metaname_SaveRegistrarLock( $p ) {
-	debug( 'metaname_SaveRegistrarLock ' . var_export( $p, TRUE ) );
-	return array( 'error' => 'Not implemented' );
+	global $metaname;
+	$metaname->inspect( 'metaname_SaveRegistrarLock', $p );
+	try {
+		$funk = $p['lockenabled'] ? 'lock_domain_name' : 'unlock_domain_name';
+		return WS_jsonRequest( $funk, $p, $metaname->domain_name_in( $p ) );
+	}
+	catch ( JsonRpcFault $e ) {
+		switch ( $e->getCode() ) {
+			case -19: $error_message = $e->getMessage(); break;
+			# Errors -4, -5 and -18 are also documented for lock_domain_name and
+			# unlock_domain_name although any of these would be a WHMCS system error
+			# since this method should be invoked only for domain names in the
+			# reseller's portfolio
+			default: $metaname->log( $e ); $error_message = 'System error.  Please contact the Support team.';
+		}
+	}
+	return array( 'error' => $error_message );
 }
 
 function metaname_GetDNS( $p ) {
-	debug( 'metaname_GetDNS ' . var_export( $p, TRUE ) );
+	global $metaname;
+	$metaname->inspect( 'metaname_GetDNS', $p );
 	return array( 'error' => 'Not implemented' );
 }
 
 function metaname_SaveDNS( $p ) {
-	debug( 'metaname_SaveDNS ' . var_export( $p, TRUE ) );
+	global $metaname;
+	$metaname->inspect( 'metaname_SaveDNS', $p );
 	return array( 'error' => 'Not implemented' );
 }
 
 function metaname_GetEPPCode( $p ) {
-	debug( 'metaname_GetEPPCode ' . var_export( $p, TRUE ) );
+	global $metaname;
+	$metaname->inspect( 'metaname_GetEPPCode', $p );
 	return array( 'error' => 'Not implemented' );
 }
 
