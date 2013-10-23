@@ -342,7 +342,18 @@ function metaname_SaveDNS( $p ) {
 function metaname_GetEPPCode( $p ) {
 	global $metaname;
 	$metaname->inspect( 'metaname_GetEPPCode', $p );
-	return array( 'error' => 'Not implemented' );
+	try {
+		$udai = WS_jsonRequest( 'reset_domain_name_secret', $p, $metaname->domain_name_in( $p ) );
+		if ( $udai ) {
+			return array( 'eppcode' => $udai );
+		}
+		# Otherwise, no value is returned and WHMCS assumes that the EPP code has
+		# been e-mailed to the Admin contact
+	}
+	catch ( JsonRpcFault $e ) {
+		$metaname->log( $e );
+		return array( 'error' => 'System error.  Please contact the Support team.' );
+	}
 }
 
 #https://github.com/WebSlate/metaname-whmcs/blob/7e182bccbd57cd1cbae542badbbc0b081a29e5bb/metaname.php
