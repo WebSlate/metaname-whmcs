@@ -203,7 +203,7 @@ function metaname_RenewDomain( $p ) {
 	}
 	$result = WS_jsonRequest( $p, 'renew_domain_name', ( $p['sld'] . $p['tld'] ), ( $p['regperiod'] * 12 ) );
 	if ( !is_array( $result ) ) {
-		return array( 'error', $result );
+		return array( 'error' => $result );
 	}
 }
 
